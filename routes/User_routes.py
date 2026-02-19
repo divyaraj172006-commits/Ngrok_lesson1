@@ -4,7 +4,7 @@ from db import get_db
 from models import User
 from repositories.User_repo import UserRepo
 from schemas.User_schema import UserSchema
-from schemas.User_schema import UserUpdateApiKey
+from schemas.User_schema import UserUpdateApiKey, UserUpdateName
 
 router = APIRouter()
 
@@ -39,5 +39,15 @@ def update_user(user_id: int, user_update: UserUpdateApiKey, db: Session = Depen
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.api_key = user_update.api_key
+    user_repo.update_user(user)
+    return user
+
+@router.put("/users/{user_id}/user_update_name")
+def update_user_name(user_id: int, user_update_name: UserUpdateName, db: Session = Depends(get_db)):
+    user_repo = UserRepo(db)
+    user = user_repo.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.name = user_update_name.name
     user_repo.update_user(user)
     return user
